@@ -20,8 +20,8 @@ import System.Random (RandomGen, randomR)
 -- Internal node: Node card l r
 -- where card is the number of leaves under the node.
 -- Invariant: card >=2. All internal tree nodes are always full.
-data Tree a = Leaf a
-            | Node Int (Tree a) (Tree a)
+data Tree a = Leaf {-# UNPACK #-} !a
+            | Node {-# UNPACK #-} !Int !(Tree a) !(Tree a)
               deriving Show
 
 
@@ -34,7 +34,7 @@ buildTree = (fix growLevel) . (map Leaf)
 
       inner [] = []
       inner [e] = [e]
-      inner (e1 : e2 : es) = (join e1 e2) : inner es
+      inner (e1 : e2 : es) = e1 `seq` e2 `seq` (join e1 e2) : inner es
 
       join l@(Leaf _)       r@(Leaf _)       = Node 2 l r
       join l@(Node ct _ _)  r@(Leaf _)       = Node (ct + 1) l r
