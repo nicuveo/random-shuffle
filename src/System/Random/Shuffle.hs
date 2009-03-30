@@ -13,6 +13,8 @@ module System.Random.Shuffle
     (
      shuffle
     , shuffle'
+    , shuffles
+    , shuffles'
     ) where
 
 import Data.Function (fix)
@@ -120,5 +122,44 @@ shuffle' elements len = shuffle elements . rseq len
             rseq' :: RandomGen gen => Int -> gen -> [(Int, gen)]
             rseq' 0 _ = []
             rseq' i gen = (j, gen) : rseq' (i - 1) gen'
+                where
+                  (j, gen') = randomR (0, i) gen
+
+
+-- |Given a sequence @(e1,...en)@ to shuffle, and an infinite sequence
+-- @(r1,...r[n-1], ..., r'1,...r'[n-1],...)@ of numbers such that
+-- @r[i]@ is an independent sample from a uniform random distribution
+-- @[0..n-i]@, compute all possible permutations of the input
+-- sequence.
+shuffles :: [a] -> [Int] -> [a]
+shuffles [] = \_ -> error "empty sequence"
+shuffles elements = shuffleTree tree
+    where
+      tree = buildTree elements
+
+      -- When the tree is empty, start shuffling again using the
+      -- remaining r-sequence.
+      shuffleTree (Leaf e) r = e : shuffleTree tree r
+      shuffleTree _ [] = error "sequence exhausted"
+      shuffleTree t (r : rs) =
+          let (b, rest) = extractTree r t
+          in b : (shuffleTree rest rs)
+
+
+-- |Given a sequence @(e1,...en)@ to shuffle, its length, and a random
+-- generator, compute all the possible permutations of the input
+-- sequence.
+shuffles' :: RandomGen gen => [a] -> Int -> gen -> [a]
+shuffles' elements len = shuffles elements . rseq len
+    where
+      -- |The infinite sequence (r1,...r[n-1], ..., r'1,...r'[n-1]) of
+      -- numbers such that r[i] is an independent sample from a
+      -- uniform random distribution [0..n-i]
+      rseq :: RandomGen gen => Int -> gen -> [Int]
+      rseq 1 = \_ -> []
+      rseq n = rseq' (n - 1)
+          where
+            rseq' 0 gen = rseq n gen -- start sequence again
+            rseq' i gen = j : rseq' (i - 1) gen'
                 where
                   (j, gen') = randomR (0, i) gen
