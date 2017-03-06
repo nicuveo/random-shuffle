@@ -8,15 +8,19 @@
 -- Based on /perfect shuffle/ by Oleg Kiselyov, see
 -- <http://okmij.org/ftp/Haskell/perfect-shuffle.txt>.
 --
+{-# OPTIONS_GHC -funbox-strict-fields #-}
 
 module System.Random.Shuffle
     (
      shuffle
     , shuffle'
+    , shuffleM
     ) where
 
 import Data.Function (fix)
 import System.Random (RandomGen, randomR)
+import Control.Monad (liftM,liftM2)
+import Control.Monad.Random (MonadRandom, getRandomR)
 
 
 -- |A complete binary tree, of leaves and internal nodes.
@@ -122,3 +126,13 @@ shuffle' elements len = shuffle elements . rseq len
             rseq' i gen = (j, gen) : rseq' (i - 1) gen'
                 where
                   (j, gen') = randomR (0, i) gen
+
+-- |shuffle' wrapped in a random monad
+shuffleM :: (MonadRandom m) => [a] -> m [a]
+shuffleM elements
+    | null elements = return []
+    | otherwise     = liftM (shuffle elements) (rseqM (length elements - 1))
+  where
+    rseqM :: (MonadRandom m) => Int -> m [Int]
+    rseqM 0 = return []
+    rseqM i = liftM2 (:) (getRandomR (0, i)) (rseqM (i - 1))
