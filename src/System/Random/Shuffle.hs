@@ -11,16 +11,16 @@
 {-# OPTIONS_GHC -funbox-strict-fields #-}
 
 module System.Random.Shuffle
-    (
-     shuffle
+    ( shuffle
     , shuffle'
+    , shuffleGen
     , shuffleM
     ) where
 
-import Data.Function (fix)
-import System.Random (RandomGen, randomR)
-import Control.Monad (liftM,liftM2)
+import Control.Monad        (liftM,liftM2)
 import Control.Monad.Random (MonadRandom, getRandomR)
+import Data.Function        (fix)
+import System.Random        (RandomGen, randomR)
 
 
 -- |A complete binary tree, of leaves and internal nodes.
