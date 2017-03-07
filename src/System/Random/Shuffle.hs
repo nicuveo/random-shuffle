@@ -15,13 +15,15 @@ module System.Random.Shuffle
     , shuffle'
     , shuffleGen
     , shuffleM
+    , shuffleIO
     ) where
 
 import Data.List            (foldl')
+import Control.Applicative  ((<$>))
 import Control.Monad        (liftM,liftM2)
 import Control.Monad.Random (MonadRandom, getRandomR)
 import Data.Function        (fix)
-import System.Random        (RandomGen, randomR)
+import System.Random        (RandomGen, getStdGen, randomR)
 
 
 -- |A complete binary tree, of leaves and internal nodes.
@@ -141,3 +143,7 @@ shuffleM elements
     rseqM :: (MonadRandom m) => Int -> m [Int]
     rseqM 0 = return []
     rseqM i = liftM2 (:) (getRandomR (0, i)) (rseqM (i - 1))
+
+-- |shuffleGen using the IO random generator
+shuffleIO :: [a] -> IO [a]
+shuffleIO elements = (fst . shuffleGen elements) <$> getStdGen
