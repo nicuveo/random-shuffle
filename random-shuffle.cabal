@@ -6,7 +6,7 @@ license:          BSD3
 license-file:     LICENSE
 category:         System
 author:           Oleg Kiselyov, Manlio Perillo
-maintainer:       Manlio Perillo <manlio.perillo@gmail.com>
+maintainer:       Andras Slemmer <0slemi0@gmail.com>
 copyright:        Oleg Kiselyov 2001
                   Manlio Perillo 2009
 synopsis:         Random shuffle implementation.
