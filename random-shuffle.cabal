@@ -1,4 +1,4 @@
-cabal-version:    >= 1.6
+cabal-version:    >= 1.8
 build-type:       Simple
 name:             random-shuffle
 version:          0.0.2
@@ -22,3 +22,8 @@ library
     exposed-modules:    System.Random.Shuffle
     hs-source-dirs:     src
     ghc-options:        -Wall -fwarn-tabs
+
+test-suite test-shuffle
+    type:          exitcode-stdio-1.0
+    main-is:       tests/test-shuffle.hs
+    build-depends: base, random, QuickCheck, random-shuffle
